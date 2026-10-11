@@ -36,7 +36,7 @@ which honours each child's own visibility, so a hidden button stays out of the
 bitmap as well.
 ---
  .../ExtensionsToolbarCoordinatorImpl.java     | 41 +++++++++++++++++++
- 1 file changed, 41 insertions(+)
+ 1 file changed, 47 insertions(+)
 
 diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/extensions/ExtensionsToolbarCoordinatorImpl.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/extensions/ExtensionsToolbarCoordinatorImpl.java
 index 648049286f..294a163418 100644
@@ -50,7 +50,7 @@ index 648049286f..294a163418 100644
  import org.chromium.ui.modaldialog.ModalDialogManager;
  import org.chromium.ui.modelutil.PropertyModel;
  import org.chromium.ui.modelutil.PropertyModelChangeProcessor;
-@@ -83,6 +84,24 @@ public class ExtensionsToolbarCoordinatorImpl
+@@ -83,6 +84,28 @@ public class ExtensionsToolbarCoordinatorImpl
  
      private boolean mCanShowMenuIcon = true;
      private boolean mShowExtensionsMenuPending;
@@ -89,7 +89,7 @@ index 648049286f..294a163418 100644
          mPrefChangeRegistrar = PrefServiceUtil.createFor(profile);
          mPrefChangeRegistrar.addObserver(
                  Pref.PIN_EXTENSIONS_MENU_BUTTON, this::updateMenuButtonPinState);
-@@ -195,6 +217,11 @@ public class ExtensionsToolbarCoordinatorImpl
+@@ -195,6 +217,12 @@ public class ExtensionsToolbarCoordinatorImpl
          mLastIconWidthPx =
                  context.getResources()
                          .getDimensionPixelSize(R.dimen.extension_action_icon_canvas_width);
@@ -117,7 +117,7 @@ index 648049286f..294a163418 100644
          mMenuButtonChangeProcessor.destroy();
  
          if (mPrefChangeRegistrar != null) {
-@@ -456,6 +490,13 @@ public class ExtensionsToolbarCoordinatorImpl
+@@ -456,6 +490,14 @@ public class ExtensionsToolbarCoordinatorImpl
              mExtensionsMenuCoordinator.setMenuButtonPinned(isMenuButtonPinned());
          }
  
@@ -127,6 +127,8 @@ index 648049286f..294a163418 100644
 +        // this the button keeps whatever visibility it was inflated with and the pin setting
 +        // does nothing.
 +        updateMenuIconVisibility();
++        mContainer.findViewById(R.id.extensions_menu_button)
++                .setVisibility(android.view.View.GONE);
 +
          // Trigger layout and wait for the toolbar to provide us with width allocation.
          ViewUtils.requestLayout(
