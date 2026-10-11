@@ -124,7 +124,7 @@ themselves are in [`patches/`](../patches); this is the summary of what each one
 | 0118 | Add Exit to the app menu, and let it clear browsing data first | Off by default; the selection is a profile preference and deletion goes through Chromium's own path |
 | 0119 | Say which autofill service is filling, without naming Google | The card was right and the wording was not: the service is whichever one Android has |
 | 0120 | Keep the bottom bar on the new tab page | A field trial parameter, not a feature flag, took the bar off the new tab page |
-| 0121 | Let the pin setting hide the extensions menu button on a phone | The switch changed its own state and nothing else, because the phone toolbar registers no width consumer |
+| 0121 | Hide the extensions menu button on phones | The puzzle-piece menu button stays hidden; extension management remains available from the app menu |
 | 0122 | Add an option for black backgrounds on darkened sites | Auto Dark leaves a white page at `#121212`; this maps eligible backgrounds to black without touching text or images |
 | 0123 | Move the update check to the current account and bound what it reads | The three release URLs named the old account, and the feed could say things the parser was not ready for |
 | 0124 | Let policy refuse a download before another app is offered it | The external handoff ran above the blocklist check, and the chooser still offered Bare itself |
