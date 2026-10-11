@@ -68,7 +68,11 @@ index 648049286f..294a163418 100644
 +                    // showing while it is being dismissed, and shouldShowMenuIcon() asks it.
 +                    mContainer.post(
 +                            () -> {
-+                                if (!mIsDestroyed) updateMenuIconVisibility();
++                                if (!mIsDestroyed) {
++                                    updateMenuIconVisibility();
++                                    mContainer.findViewById(R.id.extensions_menu_button)
++                                            .setVisibility(android.view.View.GONE);
++                                }
 +                            });
 +                }
 +            };
@@ -94,6 +98,8 @@ index 648049286f..294a163418 100644
 +        // changes, and a phone runs no width consumers, so without this the button would keep
 +        // the visibility it was inflated with until something happened to toggle the setting.
 +        updateMenuIconVisibility();
++        mContainer.findViewById(R.id.extensions_menu_button)
++                .setVisibility(android.view.View.GONE);
      }
  
      @Override
