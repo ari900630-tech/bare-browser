@@ -15,7 +15,7 @@ permissions:
 
 # A new build should replace a stuck build rather than wait behind it.
 concurrency:
-  group: bare-browser-apk-arm64
+  group: bare-browser-apk-arm64-v2
   cancel-in-progress: true
 
 jobs:
