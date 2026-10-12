@@ -1,0 +1,127 @@
+name: Build Bare Browser APK (ARM64)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/build-apk-arm64.yml"
+      - "patches/**"
+      - "VERSION"
+      - "third_party/ublock_origin/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bare-browser-apk-arm64
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Chromium Android ARM64 APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Free runner disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - name: Check available disk and memory
+        shell: bash
+        run: |
+          set -euxo pipefail
+          df -h /
+          free -h
+          available_gb=$(df -BG --output=avail / | tail -1 | tr -dc '0-9')
+          echo "Available disk after cleanup: ${available_gb} GB"
+          if [ "${available_gb}" -lt 65 ]; then
+            echo "::error::Runner has only ${available_gb} GB free after cleanup. Chromium's documented build requirement is at least 100 GB free; stopping before downloading the source to avoid a predictable disk-exhaustion failure."
+            exit 1
+          fi
+
+      - name: Check out Bare patches and build metadata
+        uses: actions/checkout@v4
+        with:
+          path: bare-browser
+
+      - name: Install depot_tools
+        shell: bash
+        run: |
+          set -euxo pipefail
+          git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git "$RUNNER_TEMP/depot_tools"
+          echo "$RUNNER_TEMP/depot_tools" >> "$GITHUB_PATH"
+
+      - name: Fetch pinned Chromium source
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/chromium"
+          cd "$GITHUB_WORKSPACE/chromium"
+          fetch --nohooks android
+          cd src
+          git fetch --depth=1 origin ac9b84a0b321cc741e9eb650f29e7177b68f0f48
+          git checkout --detach ac9b84a0b321cc741e9eb650f29e7177b68f0f48
+          gclient sync --nohooks --revision src@ac9b84a0b321cc741e9eb650f29e7177b68f0f48
+
+      - name: Apply Bare patch series
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/chromium/src"
+          git am "$GITHUB_WORKSPACE/bare-browser"/patches/*.patch
+
+      - name: Install Android build dependencies
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/chromium/src"
+          gclient runhooks
+
+      - name: Configure ARM64 release build
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/chromium/src"
+          mkdir -p out/Bare-arm64
+          cat > out/Bare-arm64/args.gn <<'EOF'
+          target_os = "android"
+          target_cpu = "arm64"
+          is_debug = false
+          is_official_build = true
+          is_desktop_android = true
+          disable_fieldtrial_testing_config = true
+          enable_arcore = false
+          enable_cardboard = false
+          enable_openxr = false
+          EOF
+          python3 "$GITHUB_WORKSPACE/bare-browser/tools/version.py" gn arm64 >> out/Bare-arm64/args.gn
+          gn gen out/Bare-arm64
+
+      - name: Build APK
+        shell: bash
+        run: |
+          set -euxo pipefail
+          cd "$GITHUB_WORKSPACE/chromium/src"
+          cp "$GITHUB_WORKSPACE/bare-browser/third_party/ublock_origin/uBlockOrigin-1.73.0.crx" chrome/browser/resources/bare/ublock_origin.crx
+          (cd "$GITHUB_WORKSPACE/bare-browser/third_party/ublock_origin" && sha256sum -c uBlockOrigin-1.73.0.crx.sha256)
+          autoninja -C out/Bare-arm64 chrome_public_apk
+          test -s out/Bare-arm64/apks/ChromePublic.apk
+
+      - name: Upload ARM64 APK
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bare-browser-arm64-apk
+          path: |
+            chromium/src/out/Bare-arm64/apks/ChromePublic.apk
+            chromium/src/out/Bare-arm64/apks/*.apk
+          if-no-files-found: warn
+          retention-days: 7
