@@ -1,0 +1,25 @@
+From 3f4a8f6c8f2f9a7d2f4c6b8a0d1e5f7a9c2b4d6e Mon Sep 17 00:00:00 2001
+From: Bare <git@barebrowser.org>
+Date: Mon, 12 Oct 2026 17:00:00 +0300
+Subject: [PATCH] Keep Home in the top toolbar on phones
+
+The browser already has a top-toolbar Home button controlled by
+AndroidBottomBar's keep_home_button_in_toolbar parameter. With the bottom bar
+enabled, the upstream default leaves Home at the bottom. Make the top-toolbar
+placement the default so Home is available beside the address bar controls and
+is no longer part of the bottom bar.
+
+The Extensions menu button is hidden by patch 0121; keep that behavior
+independent of Home placement.
+---
+ .../browser/flags/ChromeFeatureList.java       | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 52774841dd..52774841dd 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -1874,7 +1874,7 @@ public abstract class ChromeFeatureList {
+     public static final BooleanCachedFeatureParam sAndroidBottomBarKeepHomeButtonInToolbar =
+-            newBooleanCachedFeatureParam(ANDROID_BOTTOM_BAR, "keep_home_button_in_toolbar", false);
++            newBooleanCachedFeatureParam(ANDROID_BOTTOM_BAR, "keep_home_button_in_toolbar", true);
