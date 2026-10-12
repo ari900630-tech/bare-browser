@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1769e0">
+<title>Bare Browser — תצוגה מקדימה</title>
+<style>
+:root{color-scheme:light;--bg:#f3f7fc;--panel:#fff;--text:#17243b;--muted:#6b7890;--line:#e2eaf5;--blue:#1769e0;--blue2:#eaf2ff;--shadow:0 12px 34px #1a3a6410}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:var(--text);min-height:100vh;transition:.2s}
+body.dark{color-scheme:dark;--bg:#101722;--panel:#182333;--text:#edf4ff;--muted:#a4b3c9;--line:#2b3a50;--blue:#6ca5ff;--blue2:#203653;--shadow:0 12px 34px #0003}
+button,input,textarea{font:inherit}button{cursor:pointer}
+.top{height:62px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 16px;gap:12px;position:sticky;top:0;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800}.logo{width:35px;height:35px;border-radius:12px;background:var(--blue);color:white;display:grid;place-items:center;font-size:20px}.sub{font-size:12px;color:var(--muted);font-weight:500}
+.top-actions{display:flex;gap:8px}.iconbtn{border:1px solid var(--line);background:var(--panel);color:var(--text);width:40px;height:40px;border-radius:13px;font-size:18px}
+.wrap{max-width:960px;margin:24px auto;padding:0 14px 40px}
+.notice{background:var(--blue2);color:var(--text);border:1px solid var(--line);border-radius:16px;padding:13px 15px;font-size:13px;line-height:1.55;margin-bottom:18px}
+.browser{border:1px solid var(--line);background:var(--panel);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+.tabstrip{height:52px;display:flex;align-items:end;gap:7px;padding:8px 10px 0;background:var(--bg);border-bottom:1px solid var(--line);overflow:auto}
+.tab{border:1px solid var(--line);border-bottom:0;background:var(--panel);color:var(--muted);padding:10px 14px;border-radius:12px 12px 0 0;white-space:nowrap;font-size:13px}
+.tab.active{color:var(--blue);font-weight:750}
+.toolbar{display:flex;gap:7px;align-items:center;padding:12px;border-bottom:1px solid var(--line)}
+.nav{width:38px;height:38px;border:0;border-radius:12px;background:transparent;color:var(--text);font-size:19px;flex-shrink:0}.nav:active,.iconbtn:active{background:var(--blue2)}
+.address{display:flex;align-items:center;gap:8px;flex:1;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:15px;padding:0 11px;height:42px}
+.address .lock{color:var(--blue)}.address input{border:0;outline:0;background:transparent;color:var(--text);width:100%;min-width:0;font-size:14px;direction:ltr;text-align:left}
+.go{border:0;background:var(--blue);color:white;border-radius:12px;padding:10px 14px;font-weight:700}
+.menu{display:none;padding:8px 12px;border-bottom:1px solid var(--line);gap:8px;flex-wrap:wrap}.menu.show{display:flex}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px;color:var(--text);font-size:13px}
+.content{padding:30px 20px 34px;min-height:370px;text-align:center}
+.search-logo{width:68px;height:68px;background:var(--blue);border-radius:23px;color:#fff;display:grid;place-items:center;font-size:35px;font-weight:800;margin:4px auto 13px;box-shadow:0 10px 24px #1769e033}
+h1{font-size:25px;margin:0 0 7px} .lead{color:var(--muted);margin:0 auto 24px;max-width:460px;line-height:1.65;font-size:14px}
+.search{display:flex;gap:8px;max-width:600px;margin:0 auto 25px}.search input{flex:1;min-width:0;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:15px;padding:13px 15px;outline-color:var(--blue)}
+.quick{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}.quick button{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:15px;padding:13px 16px;min-width:100px}.quick .ico{font-size:21px;display:block;margin-bottom:5px}.quick small{color:var(--muted)}
+.panel{margin-top:18px;border:1px solid var(--line);background:var(--panel);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.panel h2{font-size:17px;margin:0 0 7px}.panel p{font-size:13px;line-height:1.6;color:var(--muted);margin:0 0 12px}
+textarea{width:100%;min-height:88px;border:1px solid var(--line);border-radius:13px;background:var(--bg);color:var(--text);padding:12px;resize:vertical;outline-color:var(--blue)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;flex-wrap:wrap}.status{font-size:12px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
+@media(max-width:540px){.top{padding:0 10px}.wrap{margin:14px auto}.toolbar{gap:3px;padding:8px}.nav{width:31px}.go{padding:10px}.content{padding:25px 13px 28px}.search{flex-direction:column}.search button{width:100%}.sub{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+ <div class="brand"><div class="logo">B</div><div>Bare Browser<div class="sub">תצוגה מקדימה לאתר</div></div></div>
+ <div class="top-actions"><button class="iconbtn" id="theme" aria-label="מצב כהה" title="מצב כהה">◐</button><button class="iconbtn" id="openMenu" aria-label="תפריט" title="תפריט">⋮</button></div>
+</header>
+<main class="wrap">
+ <div class="notice"><strong>תצוגה מקדימה מהירה</strong> — כאן אפשר לבדוק שינויים בממשק ולכתוב לי מה לשנות, בלי להתקין APK בכל פעם. זו הדמיית ממשק באתר, לא מנוע Chromium מלא; גרסת Android האמיתית נשארת בפרויקט האפליקציה.</div>
+ <section class="browser" aria-label="תצוגת הדפדפן">
+  <div class="tabstrip" id="tabs"><button class="tab active">כרטיסייה חדשה</button></div>
+  <div class="toolbar">
+   <button class="nav" id="back" title="חזרה">‹</button><button class="nav" id="forward" title="קדימה">›</button><button class="nav" id="refresh" title="רענון">↻</button>
+   <div class="address"><span class="lock">⌕</span><input id="url" placeholder="חיפוש או הזנת כתובת" aria-label="כתובת או חיפוש" autocomplete="off"></div>
+   <button class="go" id="go">פתח</button>
+  </div>
+  <div class="menu" id="menu">
+   <button class="chip" data-action="new">＋ כרטיסייה חדשה</button><button class="chip" data-action="bookmarks">☆ סימניות</button><button class="chip" data-action="history">◷ היסטוריה</button><button class="chip" data-action="settings">⚙ הגדרות</button><button class="chip" data-action="feedback">✎ הצע שינוי</button>
+  </div>
+  <div class="content" id="content">
+   <div class="search-logo">B</div><h1>Bare Browser</h1><p class="lead">ממשק נקי, מהיר וכחול־לבן. בדוק את הכפתורים וכתוב למטה מה תרצה לשנות.</p>
+   <form class="search" id="searchForm"><input id="searchText" placeholder="מה תרצה לחפש?" aria-label="חיפוש"><button class="go" type="submit">חיפוש</button></form>
+   <div class="quick"><button data-site="https://duckduckgo.com"><span class="ico">🦆</span>DuckDuckGo<small> חיפוש פרטי</small></button><button data-site="https://github.com/ari900630-tech/bare-browser"><span class="ico">⌘</span>GitHub<small> קוד הפרויקט</small></button><button data-action="bookmarks"><span class="ico">☆</span>סימניות<small> שמורים</small></button></div>
+  </div>
+ </section>
+ <section class="panel" id="feedback">
+  <h2>מה לשנות בממשק?</h2><p>כתוב למשל: „העבר את כפתור החזרה לצד ימין”, „הסר את כפתור ההרחבות”, או „שנה את צבע הסרגל”. לחץ על העתק ושלח לי כאן בצ'אט.</p>
+  <textarea id="request" placeholder="כתוב כאן את השינוי הבא..."></textarea>
+  <div class="row"><span class="status" id="status">השינויים כאן הם להדמיה בלבד עד שאעדכן גם את קוד Android.</span><button class="go" id="copy">העתק את הבקשה</button></div>
+ </section>
+ <footer>אתר בדיקה של Bare Browser · השינויים בקוד המקור אינם מתקינים APK אוטומטית</footer>
+</main>
+<script>
+const $=s=>document.querySelector(s);let pages=[],index=-1,tabs=1;
+function remember(v){pages=pages.slice(0,index+1);pages.push(v);index=pages.length-1}
+function goTo(raw){let v=(raw||'').trim();if(!v)return;let url;if(/^https?:\/\//i.test(v))url=v;else if(/^[\w-]+\.[a-z]{2,}([/:?#].*)?$/i.test(v))url='https://'+v;else url='https://duckduckgo.com/?q='+encodeURIComponent(v);remember(url);$('#url').value=v;$('#content').innerHTML='<div class="search-logo">↗</div><h1>הכתובת מוכנה לפתיחה</h1><p class="lead" dir="ltr">'+escapeHtml(url)+'</p><p class="lead">כדי לשמור על ההדמיה פתוחה, האתר נפתח בכרטיסייה נפרדת.</p><button class="go" id="openExternal">פתח אתר</button> <button class="chip" id="home">חזרה למסך הבית</button>';$('#openExternal').onclick=()=>window.open(url,'_blank','noopener');$('#home').onclick=home}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function home(){$('#url').value='';$('#content').innerHTML='<div class="search-logo">B</div><h1>Bare Browser</h1><p class="lead">ממשק נקי, מהיר וכחול־לבן. בדוק את הכפתורים וכתוב למטה מה תרצה לשנות.</p><form class="search" id="searchForm"><input id="searchText" placeholder="מה תרצה לחפש?" aria-label="חיפוש"><button class="go" type="submit">חיפוש</button></form><div class="quick"><button data-site="https://duckduckgo.com"><span class="ico">🦆</span>DuckDuckGo<small> חיפוש פרטי</small></button><button data-site="https://github.com/ari900630-tech/bare-browser"><span class="ico">⌘</span>GitHub<small> קוד הפרויקט</small></button><button data-action="bookmarks"><span class="ico">☆</span>סימניות<small> שמורים</small></button></div>';wireContent()}
+function wireContent(){const f=$('#searchForm');if(f)f.onsubmit=e=>{e.preventDefault();goTo($('#searchText').value)};document.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>goTo(b.dataset.site));document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>action(b.dataset.action))}
+function action(a){if(a==='new'){tabs++;$('#tabs').innerHTML+='<button class="tab active">כרטיסייה '+tabs+'</button>';home()}else if(a==='feedback')$('#request').focus();else if(a==='bookmarks')alert('הדמיה: מסך הסימניות. אפשר לכתוב לי אילו פעולות להוסיף.');else if(a==='history')alert('הדמיה: מסך ההיסטוריה.');else if(a==='settings')alert('הדמיה: הגדרות ותצוגה.')}
+$('#go').onclick=()=>goTo($('#url').value);$('#url').addEventListener('keydown',e=>{if(e.key==='Enter')goTo($('#url').value)});$('#openMenu').onclick=()=>$('#menu').classList.toggle('show');$('#theme').onclick=()=>document.body.classList.toggle('dark');$('#refresh').onclick=()=>{if(index>=0)goTo(pages[index])};$('#back').onclick=()=>{if(index>0){index--;goTo(pages[index])}else home()};$('#forward').onclick=()=>{if(index<pages.length-1){index++;goTo(pages[index])}};$('#copy').onclick=async()=>{let t=$('#request').value.trim();if(!t){$('#status').textContent='כתוב קודם מה תרצה לשנות.';return}try{await navigator.clipboard.writeText('בפרויקט bare-browser, שנה את הממשק כך: '+t);$('#status').textContent='הבקשה הועתקה. עכשיו הדבק אותה בצ׳אט.'}catch(e){$('#request').value='בפרויקט bare-browser, שנה את הממשק כך: '+t;$('#request').select();$('#status').textContent='סמן והעתק את הטקסט.'}};wireContent();
+</script>
+</body></html>
