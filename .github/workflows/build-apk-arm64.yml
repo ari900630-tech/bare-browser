@@ -13,9 +13,10 @@ on:
 permissions:
   contents: read
 
+# A new build should replace a stuck build rather than wait behind it.
 concurrency:
   group: bare-browser-apk-arm64
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -43,8 +44,11 @@ jobs:
           available_gb=$(df -BG --output=avail / | tail -1 | tr -dc '0-9')
           echo "Available disk after cleanup: ${available_gb} GB"
           if [ "${available_gb}" -lt 65 ]; then
-            echo "::error::Runner has only ${available_gb} GB free after cleanup. Chromium's documented build requirement is at least 100 GB free; stopping before downloading the source to avoid a predictable disk-exhaustion failure."
+            echo "::error::Runner has only ${available_gb} GB free after cleanup. Chromium's documented build requirement is at least 100 GB free; stopping before downloading source to avoid a predictable disk-exhaustion failure."
             exit 1
+          fi
+          if [ "${available_gb}" -lt 100 ]; then
+            echo "::warning::Less than Chromium's documented 100 GB free. Shallow source checkout is enabled, but the full build may still run out of disk."
           fi
 
       - name: Check out Bare patches and build metadata
@@ -59,17 +63,22 @@ jobs:
           git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git "$RUNNER_TEMP/depot_tools"
           echo "$RUNNER_TEMP/depot_tools" >> "$GITHUB_PATH"
 
-      - name: Fetch pinned Chromium source
+      - name: Fetch pinned Chromium source (shallow)
         shell: bash
         run: |
           set -euxo pipefail
+          export GIT_TERMINAL_PROMPT=0
           mkdir -p "$GITHUB_WORKSPACE/chromium"
           cd "$GITHUB_WORKSPACE/chromium"
-          fetch --nohooks android
+          echo "Starting shallow Chromium fetch at $(date -u)"
+          fetch --nohooks --no-history android
           cd src
           git fetch --depth=1 origin ac9b84a0b321cc741e9eb650f29e7177b68f0f48
           git checkout --detach ac9b84a0b321cc741e9eb650f29e7177b68f0f48
-          gclient sync --nohooks --revision src@ac9b84a0b321cc741e9eb650f29e7177b68f0f48
+          gclient sync --nohooks --no-history --revision src@ac9b84a0b321cc741e9eb650f29e7177b68f0f48
+          echo "Chromium source sync completed at $(date -u)"
+          git rev-parse HEAD
+          df -h "$GITHUB_WORKSPACE"
 
       - name: Apply Bare patch series
         shell: bash
