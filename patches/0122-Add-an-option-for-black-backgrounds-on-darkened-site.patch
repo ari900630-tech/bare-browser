@@ -1,7 +1,7 @@
 From ef95ce57d9efe0e38a4fefb1bf31c22a6b3307f4 Mon Sep 17 00:00:00 2001
 From: Bare <git@barebrowser.org>
 Date: Wed, 9 Sep 2026 05:06:41 +0000
-Subject: [PATCH] Add an option for black backgrounds on darkened sites
+Subject: [PATCH] Add AMOLED backgrounds and keep Home in the top toolbar
 
 Auto Dark rewrites a light page's colours in LAB, and the lightness it lands on
 is 110 - L clamped to 100. A white body comes out at #121212, not black. On an
@@ -32,6 +32,11 @@ Clear() empties both.
 
 The switch sits under Theme, below "Apply dark theme to sites, when possible",
 and is disabled while that box is unchecked. It is off by default.
+
+The Android bottom bar's keep_home_button_in_toolbar parameter defaults to false,
+which leaves Home at the bottom. Default it to true so the Home control is kept
+in the top toolbar instead. The tab switcher remains in the top toolbar, and
+patch 0121 continues to hide the Extensions menu button.
 ---
  .../browser/chrome_content_browser_client.cc  |  2 +
  .../java/res/xml/theme_preferences.xml        |  5 ++
@@ -680,3 +685,12 @@ index c39ec8626e..55e1825b11 100644
  };
  
  struct ImageAutoDarkMode : AutoDarkMode {
+
+diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+index 52774841dd..52774841dd 100644
+--- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
++++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
+@@ -1874,7 +1874,7 @@ public abstract class ChromeFeatureList {
+     public static final BooleanCachedFeatureParam sAndroidBottomBarKeepHomeButtonInToolbar =
+-            newBooleanCachedFeatureParam(ANDROID_BOTTOM_BAR, "keep_home_button_in_toolbar", false);
++            newBooleanCachedFeatureParam(ANDROID_BOTTOM_BAR, "keep_home_button_in_toolbar", true);
