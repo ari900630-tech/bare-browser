@@ -1,0 +1,53 @@
+name: Repository checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Bare Browser source and build metadata
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Validate shell scripts
+        run: bash -n builder.sh tools/sign-release.sh
+
+      - name: Validate version metadata for both Android ABIs
+        run: |
+          python tools/version.py
+          python tools/version.py gn arm64
+          python tools/version.py gn arm
+
+      - name: Validate patch series
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          patches = sorted(Path("patches").glob("*.patch"))
+          numbers = [int(re.match(r"(\d{4})-", p.name).group(1)) for p in patches]
+          expected = set(range(1, 130)) - {47}
+          actual = set(numbers)
+
+          if len(patches) != 128:
+              raise SystemExit(f"Expected 128 patch files, found {len(patches)}")
+          if actual != expected:
+              missing = sorted(expected - actual)
+              extra = sorted(actual - expected)
+              raise SystemExit(f"Patch numbering mismatch; missing={missing}, extra={extra}")
+          print("Patch series OK: 128 patches; 0047 is intentionally absent.")
+          PY
